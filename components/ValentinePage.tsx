@@ -9,32 +9,56 @@ interface ValentinePageProps {
 const ValentinePage: React.FC<ValentinePageProps> = ({ onAccept }) => {
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
   const [isMoved, setIsMoved] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  const [bubbleMessage, setBubbleMessage] = useState("");
   const noButtonRef = useRef<HTMLButtonElement>(null);
+
+  const messages = [
+    "Nice try! 😉",
+    "Almost got it! ❤️",
+    "Not today! 😂",
+    "Too slow! ✨",
+    "Think again! 🌹",
+    "I'm faster! 🏃‍♀️",
+    "Still trying? 🥰",
+    "You missed! 🎯",
+    "Catch me if you can! 💨",
+    "Nope! 🙊"
+  ];
 
   const moveButton = useCallback(() => {
     const padding = 20; // Safe distance from screen edges
     const btnWidth = noButtonRef.current?.offsetWidth || 100;
     const btnHeight = noButtonRef.current?.offsetHeight || 50;
-    
+
     const maxX = window.innerWidth - btnWidth - padding;
     const maxY = window.innerHeight - btnHeight - padding;
-    
-    // Generate random position within viewport bounds
+
     const newX = Math.max(padding, Math.random() * maxX);
     const newY = Math.max(padding, Math.random() * maxY);
-    
+
     setNoButtonPos({ x: newX, y: newY });
     setIsMoved(true);
-  }, []);
+
+    // Update bubble message
+    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+    setBubbleMessage(randomMsg);
+    setShowBubble(true);
+
+    // Hide bubble after 1.5 seconds
+    setTimeout(() => {
+      setShowBubble(false);
+    }, 1500);
+  }, [messages]);
 
   useEffect(() => {
     const handleInteraction = (e: MouseEvent | TouchEvent) => {
       if (!noButtonRef.current) return;
-      
+
       const rect = noButtonRef.current.getBoundingClientRect();
       const buttonCenterX = rect.left + rect.width / 2;
       const buttonCenterY = rect.top + rect.height / 2;
-      
+
       let clientX: number, clientY: number;
       if (e instanceof MouseEvent) {
         clientX = e.clientX;
@@ -47,7 +71,7 @@ const ValentinePage: React.FC<ValentinePageProps> = ({ onAccept }) => {
       }
 
       const distance = Math.sqrt(
-        Math.pow(clientX - buttonCenterX, 2) + 
+        Math.pow(clientX - buttonCenterX, 2) +
         Math.pow(clientY - buttonCenterY, 2)
       );
 
@@ -72,7 +96,7 @@ const ValentinePage: React.FC<ValentinePageProps> = ({ onAccept }) => {
     <div className="flex flex-col items-center justify-center h-screen w-full px-4 text-center overflow-hidden">
       <div className="max-w-xl w-full flex flex-col items-center">
         <Flower />
-        
+
         <h1 className="text-5xl md:text-7xl font-romantic text-rose-600 mt-8 mb-12 drop-shadow-sm select-none">
           Will you be my valentine Jenifer?
         </h1>
@@ -104,9 +128,19 @@ const ValentinePage: React.FC<ValentinePageProps> = ({ onAccept }) => {
             } : {
               zIndex: 40
             }}
-            className="bg-gray-100 text-gray-400 font-semibold py-3 px-10 rounded-full text-xl border-2 border-gray-200 pointer-events-auto select-none"
+            className="bg-gray-100 text-gray-400 font-semibold py-3 px-10 rounded-full text-xl border-2 border-gray-200 pointer-events-auto select-none group"
           >
             No
+            {/* Cute Message Bubble */}
+            {showBubble && (
+              <div
+                className="absolute -top-16 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-sm py-2 px-4 rounded-2xl shadow-xl whitespace-nowrap animate-bounce z-50 transition-opacity duration-300 pointer-events-none"
+                style={{ opacity: showBubble ? 1 : 0 }}
+              >
+                {bubbleMessage}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-500 rotate-45 -z-10"></div>
+              </div>
+            )}
           </button>
         </div>
 
