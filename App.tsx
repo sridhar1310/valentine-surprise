@@ -5,20 +5,52 @@ import CelebrationPage from './components/CelebrationPage';
 
 const App: React.FC = () => {
   const [isAccepted, setIsAccepted] = useState(false);
-  const [shouldPlayMusic, setShouldPlayMusic] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  // YouTube Video ID: VsxbtfGqswo
+  const playerRef = useRef<any>(null);
   const videoId = 'VsxbtfGqswo';
 
+  useEffect(() => {
+    // Load YouTube API
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+    (window as any).onYouTubeIframeAPIReady = () => {
+      playerRef.current = new (window as any).YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        videoId: videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          loop: 1,
+          playlist: videoId,
+          mute: 0,
+          enablejsapi: 1,
+          origin: window.location.origin
+        },
+        events: {
+          onReady: (event: any) => {
+            // Player is ready
+          }
+        }
+      });
+    };
+  }, []);
+
   const handleAccept = () => {
-    setShouldPlayMusic(true);
     setIsAccepted(true);
-    
-    // We try to "poke" the iframe immediately during the user gesture.
-    // Setting the src directly here is the most reliable way to trigger autoplay with sound.
-    if (iframeRef.current) {
-      iframeRef.current.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&mute=0&enablejsapi=1&origin=${window.location.origin}`;
+    if (playerRef.current && playerRef.current.playVideo) {
+      playerRef.current.playVideo();
+      // Unmute just in case
+      playerRef.current.unMute();
+    }
+  };
+
+  const handleManualPlay = () => {
+    if (playerRef.current && playerRef.current.playVideo) {
+      playerRef.current.playVideo();
+      playerRef.current.unMute();
     }
   };
 
@@ -29,25 +61,17 @@ const App: React.FC = () => {
         We keep it in the DOM but invisible to ensure the browser 
         permits autoplay when the user clicks the "Yes" button.
       */}
-      <div 
-        className="fixed opacity-0 pointer-events-none -z-50 w-0 h-0 overflow-hidden"
+      <div
+        className="fixed opacity-0 pointer-events-none -z-50 w-1 h-1 overflow-hidden"
         aria-hidden="true"
       >
-        <iframe
-          ref={iframeRef}
-          width="100%"
-          height="100%"
-          src="" // Initialized as empty
-          title="Background Music"
-          frameBorder="0"
-          allow="autoplay; encrypted-media"
-        ></iframe>
+        <div id="youtube-player"></div>
       </div>
 
       {!isAccepted ? (
         <ValentinePage onAccept={handleAccept} />
       ) : (
-        <CelebrationPage />
+        <CelebrationPage onManualPlay={handleManualPlay} />
       )}
     </div>
   );

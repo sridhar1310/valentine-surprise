@@ -1,7 +1,11 @@
 
 import React, { useEffect, useRef } from 'react';
 
-const CelebrationPage: React.FC = () => {
+interface CelebrationPageProps {
+  onManualPlay: () => void;
+}
+
+const CelebrationPage: React.FC<CelebrationPageProps> = ({ onManualPlay }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -89,7 +93,10 @@ const CelebrationPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-rose-50 overflow-y-auto relative">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4 bg-rose-50 overflow-y-auto relative cursor-pointer"
+      onClick={onManualPlay}
+    >
       <canvas
         ref={canvasRef}
         className="fixed inset-0 pointer-events-none z-20"
@@ -119,7 +126,7 @@ const CelebrationPage: React.FC = () => {
             <span className="text-4xl">✨</span>
           </div>
         </div>
-        
+
         <div className="text-center space-y-2">
           <p className="text-rose-400 text-sm font-medium animate-pulse">
             🎵 The music is playing just for you! 🎵
