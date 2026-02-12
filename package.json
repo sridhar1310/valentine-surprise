@@ -1,5 +1,5 @@
 {
-  "name": "valentine's-surprise",
+  "name": "valentine-surprise",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://GITHUB_USERNAME.github.io/valentine-surprise/",
+  "homepage": "https://sridhar1310.github.io/valentine-surprise/",
   "dependencies": {
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
